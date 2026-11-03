@@ -14,6 +14,8 @@ public class Jugador {
     int puntos;
     int partidasHeroes;
     int partidasVillanos;
+  
+    java.util.ArrayList<String> logs = new java.util.ArrayList<>();
 
    
     public Jugador(String username, String password) {
@@ -22,5 +24,10 @@ public class Jugador {
         this.puntos = 0;
         this.partidasHeroes = 0;
         this.partidasVillanos = 0;
+    }
+
+    @Override
+    public String toString() {
+        return username;
     }
 }
