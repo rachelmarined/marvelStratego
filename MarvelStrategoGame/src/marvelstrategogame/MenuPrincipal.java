@@ -169,8 +169,8 @@ public class MenuPrincipal extends JFrame {
         String texto = "Usuarios activos: " + DatosGlobales.listaJugadores.size() + "\n"
                 + "Usuarios históricos: " + DatosGlobales.usuariosHistoricos + "\n"
                 + "Partidas jugadas: " + DatosGlobales.ganadoresPartidas.size() + "\n"
-                + "     Veces que ganaron los HÉROES: " + heroes + "\n"
-                + "     Veces que ganaron los VILLANOS: " + villanos;
+                + "     Wins de los HÉROES: " + heroes + "\n"
+                + "     Wins de los VILLANOS: " + villanos;
         new VentanaInformacion("Batallas", texto).setVisible(true);
         this.dispose();
     }

@@ -296,7 +296,8 @@ public class TableroGameFrame extends JFrame {
         jugadorVillanos.logs.add(0, log);
         DatosGlobales.ganadoresPartidas.add(ganador);
 
-        JOptionPane.showMessageDialog(this, log, "Fin de la partida", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, jugadorDe(ganador).username + " ha ganado a " + jugadorDe(equipoContrario(ganador)).username,
+                "Fin de la partida", JOptionPane.INFORMATION_MESSAGE);
         this.dispose();
     }
 
