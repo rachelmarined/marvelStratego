@@ -1,19 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package marvelstrategogame;
 
-/**
- *
- * @author XPS 13
- */
-
-
 public class Bomba extends Pieza {
-    
     public Bomba(Equipo equipo) {
-        
         super(equipo == Equipo.HEROES ? "Nova Blast" : "Pumpkin Bomb", 11, equipo);
     }
 
@@ -22,13 +10,19 @@ public class Bomba extends Pieza {
         return false;
     }
 
-    
+    @Override
+    public ResultadoCombate recibirAtaque(Pieza atacante) {
+        if (atacante.puedeDesactivarBombas()) {
+            return ResultadoCombate.GANA_ATACANTE;
+        }
+        return ResultadoCombate.GANA_DEFENSOR;
+    }
+
     @Override
     public String getEtiquetaRango() {
         return "Bomba";
     }
 
-    
     @Override
     public String getInsignia() {
         return "B";

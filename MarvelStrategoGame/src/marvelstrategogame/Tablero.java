@@ -1,19 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package marvelstrategogame;
-
-/**
- *
- * @author XPS 13
- */
 
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Tablero {
-
     private static final String[][] HEROES = {
         {"Black Widow"},
         {"Gambit", "Spider-Girl", "Ice Man", "Storm", "Phoenix", "Dr. Strange", "Elektra", "Nightcrawler"},
@@ -41,7 +31,7 @@ public class Tablero {
     };
 
     private Pieza[][] matriz;
-    
+
     private Random azar = new Random();
 
     public Tablero() {
@@ -50,7 +40,6 @@ public class Tablero {
     }
 
     private void inicializarTablero() {
-
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 matriz[i][j] = null;
@@ -58,23 +47,18 @@ public class Tablero {
         }
     }
 
-  
     public void colocarPiezasIniciales() {
         colocarEquipo(Equipo.VILLANOS, VILLANOS, 0, 1, 2, 3);
         colocarEquipo(Equipo.HEROES, HEROES, 9, 8, 7, 6);
     }
 
- 
     private void colocarEquipo(Equipo equipo, String[][] nombres, int filaFondo, int filaBombas, int filaMedia, int filaFrente) {
-        
         int colTierra = 1 + azar.nextInt(8);
         matriz[filaFondo][colTierra] = new Tierra(equipo);
 
-       
         matriz[filaFondo][colTierra - 1] = new Bomba(equipo);
         matriz[filaFondo][colTierra + 1] = new Bomba(equipo);
         matriz[filaBombas][colTierra] = new Bomba(equipo);
-
 
         ArrayList<Pieza> bombas = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
@@ -82,13 +66,12 @@ public class Tablero {
         }
         colocarAleatorio(bombas, celdasVacias(filaFondo, filaBombas));
 
-        
         ArrayList<Pieza> rango2 = new ArrayList<>();
         ArrayList<Pieza> resto = new ArrayList<>();
         for (int i = 0; i < nombres.length; i++) {
             int rango = i + 1;
             for (String nombre : nombres[i]) {
-                Pieza pieza = new PiezaNormal(nombre, rango, equipo);
+                Pieza pieza = crearPieza(nombre, rango, equipo);
                 if (rango == 2) {
                     rango2.add(pieza);
                 } else {
@@ -97,18 +80,31 @@ public class Tablero {
             }
         }
 
-       
         colocarAleatorio(rango2, celdasVacias(filaMedia, filaFrente));
-       
-        colocarAleatorio(resto, celdasVacias(filaFrente));
-      
-        colocarAleatorio(resto, celdasVacias(filaFondo, filaBombas, filaMedia, filaFrente));
+
+        colocarAleatorio(resto, celdasVacias(filaFrente, filaFrente));
+
+        colocarAleatorio(resto, celdasVacias(filaFondo, filaFrente));
     }
 
-   
-    private ArrayList<int[]> celdasVacias(int... filas) {
+    public static Pieza crearPieza(String nombre, int rango, Equipo equipo) {
+        switch (rango) {
+            case 1:
+                return new PiezaAgente(nombre, equipo);
+            case 2:
+                return new PiezaMistica(nombre, equipo);
+            case 3:
+                return new PiezaExplorador(nombre, equipo);
+            default:
+                return new PiezaNormal(nombre, rango, equipo);
+        }
+    }
+
+    private ArrayList<int[]> celdasVacias(int filaA, int filaB) {
+        int desde = Math.min(filaA, filaB);
+        int hasta = Math.max(filaA, filaB);
         ArrayList<int[]> celdas = new ArrayList<>();
-        for (int fila : filas) {
+        for (int fila = desde; fila <= hasta; fila++) {
             for (int col = 0; col < 10; col++) {
                 if (matriz[fila][col] == null) {
                     celdas.add(new int[]{fila, col});
@@ -136,27 +132,26 @@ public class Tablero {
         matriz[fila][col] = pieza;
     }
 
-
     public boolean esZonaProhibida(int fila, int col) {
         return (fila == 4 || fila == 5) && (col == 2 || col == 3 || col == 6 || col == 7);
     }
 
-    
     public void moverPieza(int fOri, int cOri, int fDes, int cDes) throws MovimientoInvalidoException {
         Pieza pieza = matriz[fOri][cOri];
 
         if (esZonaProhibida(fDes, cDes)) {
-            throw new MovimientoInvalidoException("No puedes moverte a una zona prohibida.");
+            throw new MovimientoInvalidoException("No puedes moverte a una zona prohibida");
         }
         if (matriz[fDes][cDes] != null) {
-            throw new MovimientoInvalidoException("Esa casilla ya está ocupada.");
+            throw new MovimientoInvalidoException("Esa casilla ya está ocupada");
         }
-        
-        if (!pieza.esMovimientoValido(fOri, cOri, fDes, cDes)) {
-            throw new MovimientoInvalidoException("Esta pieza no se puede mover a esa casilla.");
+
+        Movible movible = pieza;
+        if (!movible.esMovimientoValido(fOri, cOri, fDes, cDes)) {
+            throw new MovimientoInvalidoException("Esa pieza no se puede mover a esa casilla");
         }
         if (!caminoDespejado(fOri, cOri, fDes, cDes)) {
-            throw new MovimientoInvalidoException("El camino está bloqueado.");
+            throw new MovimientoInvalidoException("El camino está bloqueado");
         }
 
         matriz[fDes][cDes] = pieza;
@@ -167,17 +162,15 @@ public class Tablero {
         }
     }
 
-
     public void validarAtaque(int fOri, int cOri, int fDes, int cDes) throws MovimientoInvalidoException {
         if (Math.abs(fDes - fOri) + Math.abs(cDes - cOri) != 1) {
-            throw new MovimientoInvalidoException("Solo puedes atacar a una pieza que esté al lado (sin diagonales).");
+            throw new MovimientoInvalidoException("Solo puedes atacar a una pieza que esté a la par y no en diagonal");
         }
     }
 
     private boolean caminoDespejado(int fila, int col, int fDes, int cDes) {
-
-        int sigFila = fila + Integer.signum(fDes - fila);
-        int sigCol = col + Integer.signum(cDes - col);
+        int sigFila = fila + paso(fila, fDes);
+        int sigCol = col + paso(col, cDes);
 
         if (sigFila == fDes && sigCol == cDes) {
             return true;
@@ -188,7 +181,15 @@ public class Tablero {
         return caminoDespejado(sigFila, sigCol, fDes, cDes);
     }
 
-   
+    private int paso(int actual, int destino) {
+        if (destino > actual) {
+            return 1;
+        } else if (destino < actual) {
+            return -1;
+        }
+        return 0;
+    }
+
     public boolean piezaPuedeActuar(int fila, int col) {
         Pieza pieza = matriz[fila][col];
         int[][] direcciones = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
@@ -208,12 +209,10 @@ public class Tablero {
         return false;
     }
 
-   
     public boolean tieneMovimientos(Equipo equipo) {
         return tieneMovimientos(equipo, 0, 0);
     }
 
-   
     private boolean tieneMovimientos(Equipo equipo, int fila, int col) {
         if (fila == 10) {
             return false;
